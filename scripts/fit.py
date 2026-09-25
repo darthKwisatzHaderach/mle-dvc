@@ -1,9 +1,8 @@
 import pandas as pd
 from sklearn.compose import ColumnTransformer
+from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
-from category_encoders import CatBoostEncoder
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
-from catboost import CatBoostClassifier
 import yaml
 import os
 import joblib
@@ -31,7 +30,7 @@ def fit_model():
         [
             ('binary', OneHotEncoder(drop=params['one_hot_drop']),
              binary_cat_features.columns.tolist()),
-            ('cat', CatBoostEncoder(),
+            ('cat', OneHotEncoder(drop=params['one_hot_drop']),
              other_cat_features.columns.tolist()),
             ('num', StandardScaler(),
              num_features.columns.tolist()),
@@ -40,8 +39,9 @@ def fit_model():
         verbose_feature_names_out=False,
     )
 
-    model = CatBoostClassifier(
-        auto_class_weights=params['auto_class_weights'],
+    model = LogisticRegression(
+        C=params['C'], 
+        penalty=params['penalty']
     )
 
     pipeline = Pipeline(
